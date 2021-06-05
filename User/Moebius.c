@@ -100,6 +100,7 @@ extern float YawTarget;
 int justTurned = 0;
 void SearchRun(void)
 {
+	if (justTurned == 0){
 	//四路都检测到
 	a = SEARCH_Ml_IO;
 	b = SEARCH_L_IO;
@@ -110,14 +111,15 @@ void SearchRun(void)
 		if (readflag == 0)
 		{henxian++;readflag = 1;}
 		if (henxian == 2)
-		{movemode = !movemode;movecount++;henxian =0;}
+		{movemode = !movemode;movecount++;henxian = 0;}
 		return;
 	}
-	if((SEARCH_R_IO == WHITE_AREA) && (SEARCH_Mr_IO == WHITE_AREA))
+	else//((SEARCH_R_IO == WHITE_AREA) && (SEARCH_Mr_IO == WHITE_AREA))
 	{
 		readflag = 0;
 		return;
 	}
+}
 }
 void modechoose()
 {
@@ -129,7 +131,8 @@ void modechoose()
 		if ((!added) && (justTurned == 0)){
 			added = 1;
 			YawTarget += 90;
-			justTurned = 20000;
+			movemode = 0;
+			justTurned = 8000;
 		}
 	}
 	if (movecount >= 10)
