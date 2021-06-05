@@ -96,10 +96,11 @@ int asdf = 0;
 int readflag = 0;
 int movecount = 0;
 int a,b,c,d;
+extern float YawTarget;
+int justTurned = 0;
 void SearchRun(void)
 {
 	//四路都检测到
-	
 	a = SEARCH_Ml_IO;
 	b = SEARCH_L_IO;
 	c = SEARCH_R_IO;
@@ -120,10 +121,17 @@ void SearchRun(void)
 }
 void modechoose()
 {
+	static int added = 0;
+	justTurned > 0 ? justTurned-- : justTurned;
 	if (movemode == 0 && movecount < 10)
-	{spx = 2;spy = 0;}
-	if (movemode == 1 && movecount < 10)
-	{spx = -2;spy = 0;}
+	{spx = 2;spy = 0;added = 0;}
+	if (movemode == 1 && movecount < 10){
+		if ((!added) && (justTurned == 0)){
+			added = 1;
+			YawTarget += 90;
+			justTurned = 20000;
+		}
+	}
 	if (movecount >= 10)
 	{spx = 0;spy = 0;}
 }

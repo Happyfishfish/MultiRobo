@@ -14,6 +14,10 @@
 #define q30  1073741824.0f
 short gyro[3], accel[3], sensors;
 
+float integralYaw = 0;
+int16_t integralYawLoops = 0;
+float lastYaw = 0;
+
 float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
 static signed char gyro_orientation[9] = {-1, 0, 0,
                                            0,-1, 0,
@@ -308,7 +312,14 @@ void Read_DMP(void)
 		q3=quat[3] / q30;
 		Pitch = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; 	
 		Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // roll
+        lastYaw = Yaw;
 		Yaw = 	atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;//yaw
+        if (Yaw - lastYaw < -200){ //177-->179-->-179(181)
+            integralYawLoops += 2;
+        }else if(Yaw - lastYaw > 200){
+            integralYawLoops -= 2;
+        }
+        integralYaw = integralYawLoops * 180 + Yaw;
 		Gryo_Z=gyro[2];
 	}
 }

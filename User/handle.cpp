@@ -14,13 +14,15 @@ uint8_t dataNoArrive = 0;
 
 extern "C" void delay_ms(uint32_t i);
 
-extern float Pitch, Roll, Yaw;
+//extern float Pitch, Roll, Yaw;
+extern float integralYaw;
 pid yawPID(0.5,0,0,0,100);
-float YawTarget = 15;
+float YawTarget = 0;
 float PIDresult;
 extern int spx,spy;
 int movex,movey;
 int movez;
+
 extern "C" void Kinematic_Analysis(float Vx,float Vy,float Vz);
 static int readUART(){
 	static char command[20];
@@ -57,25 +59,25 @@ int handle(){
 	if (dataNoArrive > 190){
 		movex = 0;movey = 0;
 	}
-	if (notstarted && ABS(Yaw-lastValue) > 0.3){
-		lastValue = Yaw;
+	if (notstarted && ABS(integralYaw-lastValue) > 0.3){
+		lastValue = integralYaw;
 		Kinematic_Analysis(0,0,0);
 		delay_ms(1000);
 		return 1;
 	}
-	else{
-		YawTarget = Yaw;
+	else if (notstarted){
+		YawTarget = integralYaw;
 		notstarted = 0;
 	}
 
 	static int speed = 0;
 	speed++;
 	speed = speed > 30 ? 0 : speed;
-	PIDresult = yawPID.pid_run(YawTarget - Yaw);
+	PIDresult = yawPID.pid_run(YawTarget - integralYaw);
 	readUART();
 //	Kinematic_Analysis(0,0,2);
 	//Kinematic_Analysis(movex,movey,PIDresult);
-	Kinematic_Analysis(spx,0,0);
+	Kinematic_Analysis(spx,0,PIDresult);
 	//Kinematic_Analysis(speed,0,0);
 	return 0;
 }
