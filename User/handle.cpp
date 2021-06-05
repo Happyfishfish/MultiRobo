@@ -15,6 +15,7 @@ extern float Pitch, Roll, Yaw;
 pid yawPID(0.5,0,0,0,100);
 float YawTarget = 15;
 float PIDresult;
+extern int spx,spy;
 int movex,movey;
 int movez;
 extern "C" void Kinematic_Analysis(float Vx,float Vy,float Vz);
@@ -45,27 +46,28 @@ static int readUART(){
 			movez = 0;
 		}
 	}
+	return 0;
 }
 int notstarted = 1;
 int handle(){
 	if (dataNoArrive > 190){
 		movex = 0;movey = 0;
 	}
-	if (notstarted && ABS(Yaw-16) > 1){
+	if (notstarted && ABS(Yaw-11) > 1){
 		Kinematic_Analysis(0,0,0);
 		return 1;
 	}
 	else{
 		notstarted = 0;
 	}
-		
+
 	static int speed = 0;
 	speed++;
 	speed = speed > 30 ? 0 : speed;
 	PIDresult = yawPID.pid_run(YawTarget - Yaw);
 	readUART();
 	//Kinematic_Analysis(movex,movey,PIDresult);
-	Kinematic_Analysis(2,0,PIDresult);
+	Kinematic_Analysis(spx,0,0);
 	//Kinematic_Analysis(speed,0,0);
 	return 0;
 }

@@ -1,5 +1,6 @@
 #include "sys.h"
 #include "handle.h"
+#include "pstwo.h"
 /**************************************************************************
 作者：墨比斯科技
 我的淘宝小店：https://moebius.taobao.com/
@@ -22,8 +23,10 @@ u16 PID_Parameter[10], Flash_Parameter[10];			//Flash相关数组
 float	Position_KP = 6, Position_KI = 0, Position_KD = 3;	//位置控制PID参数
 float Velocity_KP = 10, Velocity_KI = 10;			//速度控制PID参数
 int RC_Velocity = 30, RC_Position = 1000;			//设置遥控的速度和位置值
-int PS2_LX, PS2_LY, PS2_RX, PS2_RY, PS2_KEY;
 int Gryo_Z;
+int henxian , shuxian;
+int spx,spy;
+int movemode = 0;
 int	hrcounter = 0;;
 char uartbuffer[50];
 void PrintQueue(void);
@@ -46,7 +49,6 @@ void Peripheral_Init()
 
 	Adc_Init();
 	
-	PS2_Init();
 
 #if MPU6xxx_ENABLE
 	IIC_Init();
@@ -75,21 +77,49 @@ Output: void
 Return: void
 *************************************************/
 int asdf = 0;
+int readflag = 0;
+int movecount = 0;
+int a,b,c,d;
+void SearchRun(void)
+{
+	//四路都检测到
+	
+	a = SEARCH_Ml_IO;
+	b = SEARCH_L_IO;
+	c = SEARCH_R_IO;
+	d = SEARCH_Mr_IO;
+	if((SEARCH_Ml_IO == BLACK_AREA) && (SEARCH_L_IO == BLACK_AREA) && (SEARCH_R_IO == BLACK_AREA) && (SEARCH_Mr_IO == BLACK_AREA))
+	{
+		if (readflag == 0)
+		{henxian++;readflag = 1;}
+		if (henxian == 2)
+		{movemode = !movemode;movecount++;henxian =0;}
+		return;
+	}
+	if((SEARCH_R_IO == WHITE_AREA) && (SEARCH_Mr_IO == WHITE_AREA))
+	{
+		readflag = 0;
+		return;
+	}
+}
+void modechoose()
+{
+	if (movemode == 0 && movecount < 10)
+	{spx = 2;spy = 0;}
+	if (movemode == 1 && movecount < 10)
+	{spx = -2;spy = 0;}
+	if (movecount >= 10)
+	{spx = 0;spy = 0;}
+}
 int main(void)
 {
-		int i;
-	
-	
 	Peripheral_Init();
-
-//	for(i = 0;i<15;i++)
 	delay_ms(500);
 	while (1)
 	{	
 		handle();
+		SearchRun();
+		modechoose();
 		asdf++;
-//		printf("%s",uartbuffer);
-//		printf("usart1 online");
-		delay_ms(500);
 	}
 }
