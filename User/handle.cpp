@@ -64,7 +64,8 @@ int handle(){
 	speed = speed > 30 ? 0 : speed;
 	PIDresult = yawPID.pid_run(YawTarget - Yaw);
 	readUART();
-	Kinematic_Analysis(movex,movey,PIDresult);
+	//Kinematic_Analysis(movex,movey,PIDresult);
+	Kinematic_Analysis(2,0,PIDresult);
 	//Kinematic_Analysis(speed,0,0);
 	return 0;
 }

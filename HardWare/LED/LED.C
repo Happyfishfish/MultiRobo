@@ -6,7 +6,8 @@
 
 /**************************************************************************
 º¯Êý¹¦ÄÜ£ºLED½Ó¿Ú³õÊ¼»¯
-Èë¿Ú²ÎÊý£ºÎÞ 
+Èë¿Ú²ÎÊ
+ý£ºÎÞ 
 ·µ»Ø  Öµ£ºÎÞ
 **************************************************************************/
 void LED_Init(void)
@@ -16,5 +17,5 @@ void LED_Init(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;				//¶Ë¿ÚÅäÖÃ
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		//ÍÆÍìÊä³ö
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		//50M
-	GPIO_Init(GPIOC, &GPIO_InitStructure);					//¸ù¾ÝÉè¶¨²ÎÊý³õÊ¼»¯GPIOB
+	GPIO_Init(GPIOC, &GPIO_InitStructure);					//¸ù¾ÝÉè¶¨²ÎÊý³õÊ¼»¯GPIOC
 }
