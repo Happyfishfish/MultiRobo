@@ -37,10 +37,27 @@ Input:  void
 Output: void
 Return: void
 *************************************************/
+
+void SysTick_Init( void )
+{
+    /* SystemFrequency / 1000    1ms
+
+     * SystemFrequency / 100000  10us
+
+     * SystemFrequency / 1000000 1us
+
+     */
+    SysTick_Config(SystemCoreClock / 100000);
+    SysTick->CTRL &= ~ SysTick_CTRL_ENABLE_Msk;
+}
+
+
 void Peripheral_Init()
 {
 	LED_Init();						//=====初始化与 LED 连接的硬件接口
 	KEY_Init();						//=====按键初始化
+	SysTick_Init();
+	
 
 	USART1_Init(115200);				//=====串口初始化
 	USART2_Init(115200);				//=====蓝牙串口
@@ -48,7 +65,6 @@ void Peripheral_Init()
 	MiniBalance_PWM_Init(7199,0);	//=====电机驱动
 
 	Adc_Init();
-	
 
 #if MPU6xxx_ENABLE
 	IIC_Init();
@@ -114,7 +130,8 @@ void modechoose()
 int main(void)
 {
 	Peripheral_Init();
-	delay_ms(500);
+	Kinematic_Analysis(0,0,0);
+	delay_ms(5000);
 	while (1)
 	{	
 		handle();

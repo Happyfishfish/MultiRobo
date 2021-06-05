@@ -2,6 +2,7 @@
 #include "pid.h"
 #include "string.h"
 #include <stdio.h>
+
 #define bufferLenth 50
 
 #define ABS(x) ((x) > 0 ? (x) : -(x))
@@ -10,6 +11,8 @@ extern char uartbuffer[bufferLenth];
 extern int bufferPosition;
 
 uint8_t dataNoArrive = 0;
+
+extern "C" void delay_ms(uint32_t i);
 
 extern float Pitch, Roll, Yaw;
 pid yawPID(0.5,0,0,0,100);
@@ -50,14 +53,18 @@ static int readUART(){
 }
 int notstarted = 1;
 int handle(){
+	static float lastValue = -10;
 	if (dataNoArrive > 190){
 		movex = 0;movey = 0;
 	}
-	if (notstarted && ABS(Yaw-11) > 1){
+	if (notstarted && ABS(Yaw-lastValue) > 0.3){
+		lastValue = Yaw;
 		Kinematic_Analysis(0,0,0);
+		delay_ms(1000);
 		return 1;
 	}
 	else{
+		YawTarget = Yaw;
 		notstarted = 0;
 	}
 
@@ -66,6 +73,7 @@ int handle(){
 	speed = speed > 30 ? 0 : speed;
 	PIDresult = yawPID.pid_run(YawTarget - Yaw);
 	readUART();
+//	Kinematic_Analysis(0,0,2);
 	//Kinematic_Analysis(movex,movey,PIDresult);
 	Kinematic_Analysis(spx,0,0);
 	//Kinematic_Analysis(speed,0,0);
