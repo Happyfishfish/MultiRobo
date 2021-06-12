@@ -112,55 +112,31 @@ void SearchRun(void)
 	c = SEARCH_R_IO*30;c1 = SEARCH_R_IO1*30;
 	d = SEARCH_Mr_IO*100;d1 = SEARCH_Mr_IO1*100;
 	sumf = a+b+c+d;sumb = a1+b1+c1+d1;
-	if((SEARCH_Ml_IO == BLACK_AREA) && (SEARCH_L_IO == BLACK_AREA) && (SEARCH_R_IO == BLACK_AREA) && (SEARCH_Mr_IO == BLACK_AREA))
+	if(sumf == 151)
 	{
 		if (readflag == 0 && justTurned ==0)
 		{henxian++;readflag = 1;}
-		if (henxian == 2)
-		{movemode = !movemode;movecount++;henxian =0;justTurned = 20000;}
+		if (henxian == 3)
+		{YawTarget += 90;movecount++;henxian =0;justTurned = 50000;}
 		return;
 	}
 	else
 	{
 		readflag = 0;
-		if( sumf > 60){spy = -1;}
-		if( sumf < 40){spy = 1;}
-		if(sumf == 50){spy = 0;}
-//		if(sumf == sumb)
-//		{
-//			spz = 0;
-//			if(sumf > 25){spy = -1;}
-//			if(sumf < 25){spy = 1;}
-//			if(sumf == 50){spy = 0;}
-//			sumf = 0;sumb = 0;
-//		}
-//		if((sumf != sumb) && (sumb !=151))
-//		{
-//			if(sumf < sumb)
-//			{
-//				spz = 1;
-//			}
-//			if(sumf > sumb)
-//			{
-//				spz = -1;
-//			}
-//			sumf = 0;sumb = 0;
-//		}
+		if( sumf == 30 || sumf == 15){spy = -1;movemode = 0;}
+		if( sumf > 19 && sumf < 22){spy = 1;movemode = 0;}
+		if( sumf == 100){spy = -2;movemode = 0;}
+		if( sumf == 1){spy = 2;movemode = 0;}
+		if( sumf == 0){movemode = 4;}
+		if(sumf == 50){spy = 0;movemode = 0;}
 	}
 }
 void modechoose()
 {
-	static int added = 0;
-	justTurned > 0 ? justTurned-- : justTurned;
 	if (movemode == 0 && movecount < 15)
-	{spx = 2;added = 0;}
-	if (movemode == 1 && movecount < 15){
-		if ((!added) && (justTurned == 0)){	
-			added = 1;
-			YawTarget += 90;
-			movemode = 0;
-		}
-	}
+	{spx = 2;}
+	if (movemode ==4)
+	{spy = -4;spx = 0;}
 	if (movecount >= 15)
 	{spx = 0;spy = 0;spz = 0;}
 }
@@ -171,6 +147,7 @@ int main(void)
 	delay_ms(5000);
 	while (1)
 	{	
+		justTurned > 0 ? justTurned-- : justTurned;
 		handle();
 		SearchRun();
 		modechoose();
