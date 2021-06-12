@@ -104,6 +104,7 @@ int readflag = 0;
 int movecount = 0;
 int a,b,c,d,a1,b1,c1,d1;
 extern float YawTarget;
+int Yawchange = 0;
 int justTurned = 0;
 void SearchRun(void)
 {
@@ -123,18 +124,18 @@ void SearchRun(void)
 	else
 	{
 		readflag = 0;
-		if( sumf == 30 || sumf == 15){spy = -1;movemode = 0;}
-		if( sumf > 19 && sumf < 22){spy = 1;movemode = 0;}
-		if( sumf == 100){spy = -2;movemode = 0;}
-		if( sumf == 1){spy = 2;movemode = 0;}
+		if( sumf == 30 || sumf == 15){Yawchange = -2;movemode = 0;}
+		if( sumf > 19 && sumf < 22){Yawchange = 2;movemode = 0;}
+		if( sumf == 100){Yawchange = -4;movemode = 0;}
+		if( sumf == 1){Yawchange = 4;movemode = 0;}
 		if( sumf == 0){movemode = 4;}
-		if(sumf == 50){spy = 0;movemode = 0;}
+		if(sumf == 50){Yawchange = 0;movemode = 0;}
 	}
 }
 void modechoose()
 {
 	if (movemode == 0 && movecount < 15)
-	{spx = 2;}
+	{spx = 2;spy = 0;}
 	if (movemode ==4)
 	{spy = -4;spx = 0;}
 	if (movecount >= 15)

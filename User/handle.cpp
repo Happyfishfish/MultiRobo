@@ -20,6 +20,7 @@ pid yawPID(0.5,0,0,0,100);
 float YawTarget = 0;
 float PIDresult;
 extern int spx,spy,spz;
+extern int Yawchange;
 int movex,movey;
 int movez;
 
@@ -73,7 +74,7 @@ int handle(){
 	static int speed = 0;
 	speed++;
 	speed = speed > 30 ? 0 : speed;
-	PIDresult = yawPID.pid_run(YawTarget - integralYaw);
+	PIDresult = yawPID.pid_run(YawTarget + Yawchange	- integralYaw);
 	readUART();
 //	Kinematic_Analysis(0,0,2);
 	//Kinematic_Analysis(movex,movey,PIDresult);
