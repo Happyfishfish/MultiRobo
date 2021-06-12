@@ -9,7 +9,8 @@
 
 extern char uartbuffer[bufferLenth];
 extern int bufferPosition;
-
+extern uint8_t wait;
+extern uint8_t count;
 uint8_t dataNoArrive = 0;
 
 extern "C" void delay_ms(uint32_t i);
@@ -23,7 +24,8 @@ extern int spx,spy,spz;
 extern int Yawchange;
 int movex,movey;
 int movez;
-
+ 
+extern "C" void USART2_Send_Data(uint8_t Dat);
 extern "C" void Kinematic_Analysis(float Vx,float Vy,float Vz);
 static int readUART(){
 	static char command[20];
@@ -47,6 +49,14 @@ static int readUART(){
 		else if(uartbuffer[bufferPosition-1] == 'E' && uartbuffer[bufferPosition-6] == 'S'){
 			dataNoArrive = 0;
 			movez = (uartbuffer[bufferPosition-4] - '0') * 100 + (uartbuffer[bufferPosition-3] - '0') * 10 + (uartbuffer[bufferPosition-2] - '0');
+			//z frame
+//			YawTarget += movez/100.0;
+			movez = 0;
+		}
+		else if(uartbuffer[bufferPosition-1] == 'Z' && uartbuffer[bufferPosition-3] == 'W'){
+			dataNoArrive = 0;
+			if (uartbuffer[bufferPosition-2] - '0' > -1 && uartbuffer[bufferPosition-2] - '0' < 10)
+				wait = (uartbuffer[bufferPosition-2] - '0');
 			//z frame
 //			YawTarget += movez/100.0;
 			movez = 0;
@@ -76,6 +86,7 @@ int handle(){
 	speed = speed > 30 ? 0 : speed;
 	PIDresult = yawPID.pid_run(YawTarget + Yawchange	- integralYaw);
 	readUART();
+	USART2_Send_Data(count);
 //	Kinematic_Analysis(0,0,2);
 	//Kinematic_Analysis(movex,movey,PIDresult);
 	Kinematic_Analysis(spx,spy,PIDresult);

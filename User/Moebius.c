@@ -25,6 +25,8 @@ float Velocity_KP = 10, Velocity_KI = 10;			//??????PID????
 int RC_Velocity = 30, RC_Position = 1000;			//????????????????
 int Gryo_Z;
 int henxian , shuxian;
+uint8_t wait = 0;
+uint8_t count = 0;
 int spx,spy,spz;
 int sumf,sumb;
 int movemode = 0;
@@ -117,12 +119,31 @@ void SearchRun(void)
 	{
 		if (readflag == 0 && justTurned ==0)
 		{henxian++;readflag = 1;}
-		if (henxian == 3)
-		{YawTarget += 90;movecount++;henxian =0;justTurned = 50000;}
+		if (henxian >= 3)
+		{
+			 //wait is the count of another car
+			 //count is how many lines we've passed
+			 if (wait >= count){
+				// wait = 0;
+				YawTarget += 90;
+				movecount++;
+				henxian =0;
+				justTurned = 12000;
+				count++;
+			 }
+			 else{
+			 	spx = 0;
+			 	spy = 0;
+				 movemode =1;
+			 	return;
+			 }
+		}
 		return;
 	}
 	else
 	{
+		if(henxian < 3)
+		{
 		readflag = 0;
 		if( sumf == 30 || sumf == 15){Yawchange = -2;movemode = 0;}
 		if( sumf > 19 && sumf < 22){Yawchange = 2;movemode = 0;}
@@ -130,6 +151,7 @@ void SearchRun(void)
 		if( sumf == 1){Yawchange = 4;movemode = 0;}
 		if( sumf == 0){movemode = 4;}
 		if(sumf == 50){Yawchange = 0;movemode = 0;}
+		}
 	}
 }
 void modechoose()
