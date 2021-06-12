@@ -33,6 +33,7 @@ static int readUART(){
 	}
 	else{
 		if (uartbuffer[bufferPosition-1] == 'E' && uartbuffer[bufferPosition-10] == 'S'){
+			uartbuffer[bufferPosition-1] == '0';
 			dataNoArrive = 0;
 			//x,y frame
 			//memcpy(command,(const void*)uartbuffer[bufferPosition-11],10);
@@ -40,14 +41,17 @@ static int readUART(){
 			movey = (uartbuffer[bufferPosition-4] - '0') * 100 + (uartbuffer[bufferPosition-3] - '0') * 10 + (uartbuffer[bufferPosition-2] - '0');
 			movex-=50;movey-=50;movex*=2;movey*=2;
 			movex/=10;movey/=10;
+			movey*=-1;
 			//sscanf(command,"Sx%dy%d",&movex,&movey);
 			
 		}
 		else if(uartbuffer[bufferPosition-1] == 'E' && uartbuffer[bufferPosition-6] == 'S'){
+			uartbuffer[bufferPosition-1] == '0';
 			dataNoArrive = 0;
 			movez = (uartbuffer[bufferPosition-4] - '0') * 100 + (uartbuffer[bufferPosition-3] - '0') * 10 + (uartbuffer[bufferPosition-2] - '0');
+			movez-=50;
 			//z frame
-//			YawTarget += movez/100.0;
+			YawTarget = integralYaw + (movez + 0.0)/4.0;
 			movez = 0;
 		}
 	}
@@ -76,8 +80,8 @@ int handle(){
 	PIDresult = yawPID.pid_run(YawTarget - integralYaw);
 	readUART();
 //	Kinematic_Analysis(0,0,2);
-	//Kinematic_Analysis(movex,movey,PIDresult);
-	Kinematic_Analysis(spx,spy,PIDresult);
+	Kinematic_Analysis(movex,movey,PIDresult);
+	// Kinematic_Analysis(spx,spy,PIDresult);
 	//Kinematic_Analysis(speed,0,0);
 	return 0;
 }

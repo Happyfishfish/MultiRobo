@@ -172,8 +172,8 @@ int main(void)
 	while (1)
 	{	
 		handle();
-		SearchRun();
-		modechoose();
+		// SearchRun();
+		// modechoose();
 		asdf++;
 	}
 }
