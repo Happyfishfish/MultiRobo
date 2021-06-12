@@ -36,4 +36,24 @@ void RedRayInit(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//配置GPIO模式,输入上拉
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//配置GPIO端口速度
 	GPIO_Init(SEARCH_L_GPIO , &GPIO_InitStructure); 
+	
+	GPIO_InitStructure.GPIO_Pin = SEARCH_Ml_PIN1;//配置使能GPIO管脚
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//配置GPIO模式,输入上拉
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//配置GPIO端口速度
+	GPIO_Init(SEARCH_Ml_GPIO , &GPIO_InitStructure); 
+	
+	GPIO_InitStructure.GPIO_Pin = SEARCH_Mr_PIN1;//配置使能GPIO管脚
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//配置GPIO模式,输入上拉
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//配置GPIO端口速度
+	GPIO_Init(SEARCH_Mr_GPIO , &GPIO_InitStructure); 
+	
+	GPIO_InitStructure.GPIO_Pin = SEARCH_R_PIN1;//配置使能GPIO管脚
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//配置GPIO模式,输入上拉
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//配置GPIO端口速度
+	GPIO_Init(SEARCH_R_GPIO , &GPIO_InitStructure); 
+	
+	GPIO_InitStructure.GPIO_Pin = SEARCH_L_PIN1;//配置使能GPIO管脚
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;//配置GPIO模式,输入上拉
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//配置GPIO端口速度
+	GPIO_Init(SEARCH_L_GPIO , &GPIO_InitStructure); 
 }

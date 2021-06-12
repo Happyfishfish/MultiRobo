@@ -2,33 +2,35 @@
 #include "handle.h"
 #include "pstwo.h"
 /**************************************************************************
-作者：墨比斯科技
-我的淘宝小店：https://moebius.taobao.com/
+?????i??????
+?????????https://moebius.taobao.com/
 **************************************************************************/ 
-u8 Flag_Left, Flag_Right, Flag_Direction = 0;		//蓝牙遥控相关的变量
-u8 Flag_Stop = 1, Flag_Show = 0;					//停止标志位和 显示标志位 默认停止 显示打开
-int Encoder_A, Encoder_B, Encoder_C, Encoder_D;		//编码器的脉冲计数
-long int Position_A, Position_B, Position_C, Position_D, Rate_A, Rate_B, Rate_C, Rate_D; //PID控制相关变量
-int Encoder_A_EXTI;									//通过外部中断读取的编码器数据                       
-long int Motor_A, Motor_B, Motor_C, Motor_D;		//电机PWM变量
-long int Target_A = 6, Target_B = 6, Target_C = 6, Target_D = 6;	//电机目标值
-int Voltage;										//电池电压采样相关的变量
-float Show_Data_Mb;									//全局显示变量，用于显示需要查看的数据                         
-u8 delay_50, delay_flag;							//延时相关变量
-u8 Run_Flag = 0;  									//蓝牙遥控相关变量和运行状态标志位
-u8 rxbuf[8], Urxbuf[8], CAN_ON_Flag = 0, Usart_ON_Flag = 0, PS2_ON_Flag = 0, Usart_Flag, PID_Send, Flash_Send;  //CAN和串口控制相关变量
-u8 txbuf[8], txbuf2[8], Turn_Flag;					//CAN发送相关变量
-float Pitch, Roll, Yaw, Move_X, Move_Y, Move_Z;		//三轴角度和XYZ轴目标速度
-u16 PID_Parameter[10], Flash_Parameter[10];			//Flash相关数组
-float	Position_KP = 6, Position_KI = 0, Position_KD = 3;	//位置控制PID参数
-float Velocity_KP = 10, Velocity_KI = 10;			//速度控制PID参数
-int RC_Velocity = 30, RC_Position = 1000;			//设置遥控的速度和位置值
+u8 Flag_Left, Flag_Right, Flag_Direction = 0;		//??????????i???
+u8 Flag_Stop = 1, Flag_Show = 0;					//???????? ??????? I???? ?????
+int Encoder_A, Encoder_B, Encoder_C, Encoder_D;		//???????????????
+long int Position_A, Position_B, Position_C, Position_D, Rate_A, Rate_B, Rate_C, Rate_D; //PID??????????
+int Encoder_A_EXTI;									//???????????i?????????                       
+long int Motor_A, Motor_B, Motor_C, Motor_D;		//???PWM????
+long int Target_A = 6, Target_B = 6, Target_C = 6, Target_D = 6;	//???????
+int Voltage;										//????????????i???
+float Show_Data_Mb;									//??????????????????????????????                         
+u8 delay_50, delay_flag;							//?????????
+u8 Run_Flag = 0;  									//?????????????????????????
+u8 rxbuf[8], Urxbuf[8], CAN_ON_Flag = 0, Usart_ON_Flag = 0, PS2_ON_Flag = 0, Usart_Flag, PID_Send, Flash_Send;  //CAN??????????????
+u8 txbuf[8], txbuf2[8], Turn_Flag;					//CAN??????????
+float Pitch, Roll, Yaw, Move_X, Move_Y, Move_Z;		//???????XYZ????????
+u16 PID_Parameter[10], Flash_Parameter[10];			//Flash???????
+float	Position_KP = 6, Position_KI = 0, Position_KD = 3;	//??????PID????
+float Velocity_KP = 10, Velocity_KI = 10;			//??????PID????
+int RC_Velocity = 30, RC_Position = 1000;			//????????????????
 int Gryo_Z;
 int henxian , shuxian;
-int spx,spy;
+int spx,spy,spz;
+int sumf,sumb;
 int movemode = 0;
 int	hrcounter = 0;;
 char uartbuffer[50];
+int32_t hal_nowtick = 0;
 void PrintQueue(void);
 /*************************************************
 Function: Peripheral_Init()
@@ -47,36 +49,41 @@ void SysTick_Init( void )
      * SystemFrequency / 1000000 1us
 
      */
-    SysTick_Config(SystemCoreClock / 100000);
+    SysTick_Config(SystemCoreClock / 1000);
     SysTick->CTRL &= ~ SysTick_CTRL_ENABLE_Msk;
 }
 
 
+
+void SysTick_Handler(void){
+	hal_nowtick++;
+}
+
 void Peripheral_Init()
 {
-	LED_Init();						//=====初始化与 LED 连接的硬件接口
-	KEY_Init();						//=====按键初始化
+	LED_Init();						//=====??'???? LED ???????????
+	KEY_Init();						//=====??????'??
 	SysTick_Init();
 	
 
-	USART1_Init(115200);				//=====串口初始化
-	USART2_Init(115200);				//=====蓝牙串口
+	USART1_Init(115200);				//=====?????'??
+	USART2_Init(115200);				//=====????????
 	
-	MiniBalance_PWM_Init(7199,0);	//=====电机驱动
+	MiniBalance_PWM_Init(7199,0);	//=====???????
 
 	Adc_Init();
 
 #if MPU6xxx_ENABLE
 	IIC_Init();
-	MPU6050_initialize();           //=====MPU6050初始化	
-	DMP_Init();                     //=====初始化DMP   
+	MPU6050_initialize();           //=====MPU6050??'??	
+	DMP_Init();                     //=====??'??DMP   
 #endif
 	
 #if OLED_DISPLAY_ENABLE
-	OLED_Init();					//=====OLED初始化
+	OLED_Init();					//=====OLED??'??
 #endif
 	
-#if ENCODER_ENABLE					//=====编码器初始化
+#if ENCODER_ENABLE					//=====????????'??
 	Encoder_Init_TIM2();
 	Encoder_Init_TIM3();
 	Encoder_Init_TIM4();
@@ -95,48 +102,67 @@ Return: void
 int asdf = 0;
 int readflag = 0;
 int movecount = 0;
-int a,b,c,d;
+int a,b,c,d,a1,b1,c1,d1;
 extern float YawTarget;
 int justTurned = 0;
 void SearchRun(void)
 {
-	if (justTurned == 0){
-	//四路都检测到
-	a = SEARCH_Ml_IO;
-	b = SEARCH_L_IO;
-	c = SEARCH_R_IO;
-	d = SEARCH_Mr_IO;
+	a = SEARCH_Ml_IO*1;a1 =	SEARCH_Ml_IO1*1;
+	b = SEARCH_L_IO*20;b1 = SEARCH_L_IO1*20;
+	c = SEARCH_R_IO*30;c1 = SEARCH_R_IO1*30;
+	d = SEARCH_Mr_IO*100;d1 = SEARCH_Mr_IO1*100;
+	sumf = a+b+c+d;sumb = a1+b1+c1+d1;
 	if((SEARCH_Ml_IO == BLACK_AREA) && (SEARCH_L_IO == BLACK_AREA) && (SEARCH_R_IO == BLACK_AREA) && (SEARCH_Mr_IO == BLACK_AREA))
 	{
-		if (readflag == 0)
+		if (readflag == 0 && justTurned ==0)
 		{henxian++;readflag = 1;}
 		if (henxian == 2)
-		{movemode = !movemode;movecount++;henxian = 0;}
+		{movemode = !movemode;movecount++;henxian =0;justTurned = 20000;}
 		return;
 	}
-	else//((SEARCH_R_IO == WHITE_AREA) && (SEARCH_Mr_IO == WHITE_AREA))
+	else
 	{
 		readflag = 0;
-		return;
+		if( sumf > 60){spy = -1;}
+		if( sumf < 40){spy = 1;}
+		if(sumf == 50){spy = 0;}
+//		if(sumf == sumb)
+//		{
+//			spz = 0;
+//			if(sumf > 25){spy = -1;}
+//			if(sumf < 25){spy = 1;}
+//			if(sumf == 50){spy = 0;}
+//			sumf = 0;sumb = 0;
+//		}
+//		if((sumf != sumb) && (sumb !=151))
+//		{
+//			if(sumf < sumb)
+//			{
+//				spz = 1;
+//			}
+//			if(sumf > sumb)
+//			{
+//				spz = -1;
+//			}
+//			sumf = 0;sumb = 0;
+//		}
 	}
-}
 }
 void modechoose()
 {
 	static int added = 0;
 	justTurned > 0 ? justTurned-- : justTurned;
-	if (movemode == 0 && movecount < 10)
-	{spx = 2;spy = 0;added = 0;}
-	if (movemode == 1 && movecount < 10){
-		if ((!added) && (justTurned == 0)){
+	if (movemode == 0 && movecount < 15)
+	{spx = 2;added = 0;}
+	if (movemode == 1 && movecount < 15){
+		if ((!added) && (justTurned == 0)){	
 			added = 1;
 			YawTarget += 90;
 			movemode = 0;
-			justTurned = 8000;
 		}
 	}
-	if (movecount >= 10)
-	{spx = 0;spy = 0;}
+	if (movecount >= 15)
+	{spx = 0;spy = 0;spz = 0;}
 }
 int main(void)
 {

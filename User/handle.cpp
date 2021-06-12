@@ -19,7 +19,7 @@ extern float integralYaw;
 pid yawPID(0.5,0,0,0,100);
 float YawTarget = 0;
 float PIDresult;
-extern int spx,spy;
+extern int spx,spy,spz;
 int movex,movey;
 int movez;
 
@@ -77,7 +77,7 @@ int handle(){
 	readUART();
 //	Kinematic_Analysis(0,0,2);
 	//Kinematic_Analysis(movex,movey,PIDresult);
-	Kinematic_Analysis(spx,0,PIDresult);
+	Kinematic_Analysis(spx,spy,PIDresult);
 	//Kinematic_Analysis(speed,0,0);
 	return 0;
 }
